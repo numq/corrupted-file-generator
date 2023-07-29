@@ -4,6 +4,7 @@ use crate::navigation::application::Root;
 
 mod elm;
 mod navigation;
+mod ui;
 mod generation;
 mod interaction;
 mod template;

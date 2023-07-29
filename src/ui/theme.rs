@@ -1,7 +1,6 @@
-use iced::{Background, Color, Theme, Vector};
-use iced::theme::{Button, Container};
+use iced::{Background, Color, Theme};
+use iced::theme::Button;
 use iced::widget::{button, container};
-use iced::widget::text_input::StyleSheet;
 
 pub struct CustomTheme;
 

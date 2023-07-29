@@ -1,11 +1,13 @@
 use iced::{Alignment, Element, Length};
 use iced::alignment::{Horizontal, Vertical};
-use iced::widget::{button, Column, column, container, row, text, text_input};
+use iced::widget::{Column, column, container, row, text, text_input};
 
 use crate::elm::View;
 use crate::interaction::entity::message::InteractionMessage;
 use crate::interaction::entity::size_type::SizeType;
 use crate::interaction::entity::state::InteractionState;
+use crate::ui::button::state_button;
+use crate::ui::theme::CustomTheme;
 
 #[derive(Clone, Debug)]
 pub struct InteractionView;
@@ -61,21 +63,18 @@ impl View<InteractionState, InteractionMessage> for InteractionView {
                 .height(Length::Fill)
                 .vertical_alignment(Vertical::Center)
                 .horizontal_alignment(Horizontal::Center);
-            let mut button = button(label)
+            state_button(
+                state.selected_size_type.name() != size_type.name(),
+                label,
+                InteractionMessage::ChangeSizeType(size_type.clone()),
+            )
                 .padding(8)
-                .width(Length::Fill);
-            if state.selected_size_type.name() != size_type.name() {
-                button = button.on_press(InteractionMessage::ChangeSizeType(size_type.clone()));
-            }
-            button.into()
+                .width(Length::Fill)
+                .style(CustomTheme::button_pick_size_type())
+                .into()
         }).collect()).spacing(8).align_items(Alignment::Center).height(48).into();
 
         let button_save = {
-            let mut button = button(
-                text("Save file")
-                    .horizontal_alignment(Horizontal::Center)
-                    .vertical_alignment(Vertical::Center)
-            ).width(96).height(48).padding(8);
             let name = state.file_name
                 .trim()
                 .chars()
@@ -87,15 +86,25 @@ impl View<InteractionState, InteractionMessage> for InteractionView {
                 .filter(|c| c.is_ascii())
                 .collect::<String>();
             let size_in_bytes = state.selected_size_type.value(&state.size_in_bytes);
-            if !name.is_empty() && !extension.is_empty() {
-                let state = state.clone();
-                button = button.on_press(InteractionMessage::SaveFile {
-                    name: state.file_name,
-                    extension: state.file_extension,
-                    size_in_bytes,
-                })
-            }
-            button.into()
+            state_button(
+                !name.is_empty() && !extension.is_empty(),
+                text("Save file")
+                    .horizontal_alignment(Horizontal::Center)
+                    .vertical_alignment(Vertical::Center),
+                {
+                    let state = state.clone();
+                    InteractionMessage::SaveFile {
+                        name: state.file_name,
+                        extension: state.file_extension,
+                        size_in_bytes,
+                    }
+                },
+            )
+                .width(96)
+                .height(48)
+                .padding(8)
+                .style(CustomTheme::button_save())
+                .into()
         };
 
         let content: Column<InteractionMessage> = column(vec![
